@@ -1,0 +1,135 @@
+﻿
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title></title>
+    <meta charset="utf-8" />
+
+</head>
+<body>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script>
+        
+
+        function nbastat() {
+            var input = $("#input").val();
+            $.ajax({
+                url: "http://ec2-52-38-15-101.us-west-2.compute.amazonaws.com/database.php?",
+                data: { search: input },
+                contentType: "text/javascript",
+                dataType: "jsonp",
+                jsonp: 'callback',
+                jsonpCallback: 'nbastats',
+                success: function (msg) {
+                    console.log("success!");
+                    console.log(msg);
+                }
+            });
+        }
+
+        function nbastats(data) {
+            $('#secjson').html(JSON.stringify(data));
+        }
+        
+
+        function getQuery() {
+
+            var userInput = { sentence: $("#input").val() };
+            var json_data = JSON.stringify(userInput);
+            console.log(userInput);
+            var queryDiv = document.getElementById("queryDiv");
+
+
+            queryDiv.innerHTML = "";
+
+            $.ajax({
+                type: "POST",
+                url: "Admin.asmx/titleTable",
+                data: json_data,
+                contentType: "application/json;charset=utf-8",
+                dataType: "json",
+                success: function (word) {
+                    console.log(word);
+
+                    var data = JSON.parse(word.d);
+                    console.log(data);
+                    $.each(data, function (index, element) {
+                        var temp = document.createElement("div");
+                        var a = document.createElement('a');
+                        var linkText = document.createTextNode(element.Item1.Item2);
+                        a.appendChild(linkText);
+                        a.title = element.Item1.Item2;
+                        a.href = element.Item1.Item1;
+
+                        temp.appendChild(a);
+                        queryDiv.appendChild(temp);
+                        console.log(a)
+                    })
+                }
+            });
+        }
+
+        function testJson() {
+            var userSearch = $("#input").val();
+            jsonDiv.innerHTML = "";
+            $.ajax({
+                type: "POST",
+                url: "Admin.asmx/searchTrie",
+                data: JSON.stringify({ "input": userSearch }),
+                contentType: "application/json;charset=utf-8",
+                dataType: "json",
+                success: function (building) {
+                    var data = JSON.parse(building.d);
+                    var jsonDiv = document.getElementById("jsonDiv");
+                    $.each(data, function (index, element) {
+                        var temp = document.createElement("div");
+                        temp.innerHTML = element;
+                        jsonDiv.appendChild(temp);
+                    });
+                }
+            });
+        }
+
+        $(document).ready(function getTrieCount() {
+            trieDiv.innerHTML = "";
+            $.ajax({
+                type: "POST",
+                url: "Admin.asmx/BuildTRIE",
+                data: {},
+                contentType: "application/json;charset=utf-8",
+                dataType: "json",
+
+                success: function (word) {
+                    var data = JSON.parse(word.d);
+                    var trieDiv = document.getElementById("trieDiv");
+                    $.each(data, function (index, element) {
+                        var temp = document.createElement("div");
+                        temp.innerHTML = element;
+                        trieDiv.appendChild(temp);
+                    });
+                }
+            });
+        });
+    </script>
+    Query:<input type="text" id="input" onkeyup="testJson();" />
+    <input type="submit" onclick="getQuery(), nbastat();" />
+    <div id="queryDiv"></div>
+    <div id="jsonDiv"></div>
+    <div id="secjson"></div>
+    <br />
+    Number of titles: <div id="trieDiv"></div>
+    <script type="text/javascript">
+  ( function() {
+    if (window.CHITIKA === undefined) { window.CHITIKA = { 'units' : [] }; };
+    var unit = {"calltype":"async[2]","publisher":"kenseioh","width":550,"height":250,"sid":"Chitika Default"};
+    var placement_id = window.CHITIKA.units.length;
+    window.CHITIKA.units.push(unit);
+    document.write('<div id="chitikaAdBlock-' + placement_id + '"></div>');
+}());
+    </script>
+    <script type="text/javascript" src="//cdn.chitika.net/getads.js" async></script>
+</body>
+</html>
+
+
